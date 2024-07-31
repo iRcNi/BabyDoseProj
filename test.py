@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import PhotoImage
+from PIL import Image, ImageTk
 
 def update_image_and_entry(*args):
     # Get the current option selected from the list
@@ -7,11 +8,11 @@ def update_image_and_entry(*args):
     
     # Update the image displayed in the label based on the selected drug
     if selected_drug == 'Drug 1':
-        image_label.config(image=image1)
+        image_label.config(image=image1_resized)
     elif selected_drug == 'Drug 2':
-        image_label.config(image=image2)
+        image_label.config(image=image2_resized)
     elif selected_drug == 'Drug 3':
-        image_label.config(image=image3)
+        image_label.config(image=image3_resized)
 
 def calculate_dose():
     # Get the current option selected from the list
@@ -38,14 +39,18 @@ drugs = ['Drug 1', 'Drug 2', 'Drug 3']
 option_menu = tk.OptionMenu(root, drug_var, *drugs)
 option_menu.pack()
 
-# Load the images
-image1 = PhotoImage(file='AMOXICILLIN-IMAGE.png')
-image2 = PhotoImage(file='TYLENOL-IMAGE.png')
-image3 = PhotoImage(file='IBUPROFEN-IMAGE.png')
+# Load the images and resize them
+def load_and_resize_image(path, size):
+    image = Image.open(path)
+    image = image.resize(size)
+    return ImageTk.PhotoImage(image)
 
+image1_resized = load_and_resize_image('AMOXICILLIN-IMAGE.png', (200, 200))
+image2_resized = load_and_resize_image('IBUPROFEN-IMAGE.png', (200, 200))
+image3_resized = load_and_resize_image('TYLENOL-IMAGE.png', (200, 200))
 
 # Create a Label to display the image
-image_label = tk.Label(root, image=image1)
+image_label = tk.Label(root, image=image1_resized)
 image_label.pack()
 
 # Create an Entry widget for input
@@ -70,6 +75,6 @@ dosage_factor = {
 }
 
 # Trace the variable to call update_image_and_entry whenever it changes
-drug_var.trace_add('write', update_image_and_entry)
+drug_var.trace('w', update_image_and_entry)
 
 root.mainloop()
