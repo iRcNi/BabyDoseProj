@@ -39,9 +39,9 @@ option_menu = tk.OptionMenu(root, drug_var, *drugs)
 option_menu.pack()
 
 # Load the images
-image1 = PhotoImage(file='AMOXICILLIN-SODIUM-INJECTION.png')
-image2 = PhotoImage(file='microsoftteams-image_1.png')
-image3 = PhotoImage(file='4db46eec7435e17e7aeafd8092bb1110_large.png')
+image1 = PhotoImage(file='AMOXICILLIN-IMAGE.png')
+image2 = PhotoImage(file='TYLENOL-IMAGE.png')
+image3 = PhotoImage(file='IBUPROFEN-IMAGE.png')
 
 
 # Create a Label to display the image
