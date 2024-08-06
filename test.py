@@ -3,7 +3,6 @@ from tkinter import PhotoImage
 from PIL import Image, ImageTk
 import serial
 import threading
-import time
 
 # Initialize tare weight
 tare_weight = 0.0
@@ -26,6 +25,7 @@ def calculate_dose(*args):
     try:
         raw_weight = float(weight_var.get())
         net_weight = raw_weight - tare_weight
+        weight_display_var.set(f'{net_weight:.2f} kg')
         dose = net_weight * dosage_factor[selected_drug]
         dose_output.config(text=f'Dose: {dose:.2f} mg')
     except ValueError:
@@ -95,7 +95,10 @@ weight_label.pack()
 
 # Create a StringVar to hold the weight value
 weight_var = tk.StringVar(root)
-weight_display = tk.Label(root, textvariable=weight_var)
+
+# Create a StringVar to display the net weight (tared weight)
+weight_display_var = tk.StringVar(root)
+weight_display = tk.Label(root, textvariable=weight_display_var)
 weight_display.pack()
 
 # Create a Button to tare the weight
