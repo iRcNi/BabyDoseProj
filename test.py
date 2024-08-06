@@ -5,6 +5,9 @@ import serial
 import threading
 import time
 
+# Initialize tare weight
+tare_weight = 0.0
+
 # Function to update the image based on the selected drug
 def update_image_and_entry(selected_drug):
     if selected_drug == 'Drug 1':
@@ -21,11 +24,21 @@ def update_image_and_entry(selected_drug):
 def calculate_dose(*args):
     selected_drug = drug_var.get()
     try:
-        weight = float(weight_var.get())
-        dose = weight * dosage_factor[selected_drug]
+        raw_weight = float(weight_var.get())
+        net_weight = raw_weight - tare_weight
+        dose = net_weight * dosage_factor[selected_drug]
         dose_output.config(text=f'Dose: {dose:.2f} mg')
     except ValueError:
         dose_output.config(text='Invalid weight!')
+
+# Function to tare the weight
+def tare_weight_function():
+    global tare_weight
+    try:
+        tare_weight = float(weight_var.get())
+        tare_output.config(text=f'Tare Weight: {tare_weight:.2f} kg')
+    except ValueError:
+        tare_output.config(text='Tare Weight: Invalid weight!')
 
 # Function to read weight from serial port
 def read_serial():
@@ -58,6 +71,7 @@ image1_resized = load_and_resize_image('AMOXICILLIN-IMAGE.png', (200, 200))
 image2_resized = load_and_resize_image('IBUPROFEN-IMAGE.png', (200, 200))
 image3_resized = load_and_resize_image('TYLENOL-IMAGE.png', (200, 200))
 
+
 # Create buttons for each drug option
 button_frame = tk.Frame(root)
 button_frame.pack()
@@ -83,6 +97,14 @@ weight_label.pack()
 weight_var = tk.StringVar(root)
 weight_display = tk.Label(root, textvariable=weight_var)
 weight_display.pack()
+
+# Create a Button to tare the weight
+tare_button = tk.Button(root, text="Tare Weight", command=tare_weight_function)
+tare_button.pack()
+
+# Create a Label to display the tare weight
+tare_output = tk.Label(root, text="Tare Weight: 0.00 kg")
+tare_output.pack()
 
 # Create a Label to display the dose output
 dose_output = tk.Label(root, text="Dose: ")
