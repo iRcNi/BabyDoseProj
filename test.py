@@ -1,9 +1,12 @@
 import tkinter as tk
 from tkinter import PhotoImage
 from PIL import Image, ImageTk
+import serial
+import threading
+import time
 
+# Function to update the image based on the selected drug
 def update_image_and_entry(selected_drug):
-    # Update the image displayed in the label based on the selected drug
     if selected_drug == 'Drug 1':
         image_label.config(image=image1_resized)
     elif selected_drug == 'Drug 2':
@@ -11,24 +14,33 @@ def update_image_and_entry(selected_drug):
     elif selected_drug == 'Drug 3':
         image_label.config(image=image3_resized)
     
-    # Set the selected drug
     drug_var.set(selected_drug)
-    # Calculate the dose
     calculate_dose()
 
+# Function to calculate the dose based on the weight and selected drug
 def calculate_dose(*args):
-    # Get the current option selected from the list
     selected_drug = drug_var.get()
-    # Get the input value
-    input_value = input_entry.get()
-    
-    # Perform dose calculation based on the selected drug and input value
     try:
-        dose = float(input_value) * dosage_factor[selected_drug]
+        weight = float(weight_var.get())
+        dose = weight * dosage_factor[selected_drug]
         dose_output.config(text=f'Dose: {dose:.2f} mg')
     except ValueError:
-        dose_output.config(text='Invalid input! Please enter a number.')
+        dose_output.config(text='Invalid weight!')
 
+# Function to read weight from serial port
+def read_serial():
+    while True:
+        try:
+            weight = ser.readline().decode('utf-8').strip()
+            weight_var.set(weight)
+            calculate_dose()
+        except:
+            continue
+
+# Setup serial port
+ser = serial.Serial(port='/dev/ttyUSB0', baudrate=9600)
+
+# Create the Tkinter application
 root = tk.Tk()
 root.title("Dosage Calculator")
 
@@ -36,10 +48,10 @@ root.title("Dosage Calculator")
 drug_var = tk.StringVar(root)
 drug_var.set('Drug 1')  # Set the default option
 
-# Load the images and resize them
+# Load and resize the images
 def load_and_resize_image(path, size):
     image = Image.open(path)
-    image = image.resize(size)
+    image = image.resize(size, Image.ANTIALIAS)
     return ImageTk.PhotoImage(image)
 
 image1_resized = load_and_resize_image('AMOXICILLIN-IMAGE.png', (200, 200))
@@ -63,12 +75,14 @@ drug3_button.pack(side=tk.LEFT, padx=5)
 image_label = tk.Label(root, image=image1_resized)
 image_label.pack()
 
-# Create an Entry widget for input
-input_label = tk.Label(root, text="Enter value:")
-input_label.pack()
-input_entry = tk.Entry(root)
-input_entry.pack()
-input_entry.bind('<KeyRelease>', calculate_dose)  # Calculate dose on key release
+# Create a Label to display the weight
+weight_label = tk.Label(root, text="Weight: ")
+weight_label.pack()
+
+# Create a StringVar to hold the weight value
+weight_var = tk.StringVar(root)
+weight_display = tk.Label(root, textvariable=weight_var)
+weight_display.pack()
 
 # Create a Label to display the dose output
 dose_output = tk.Label(root, text="Dose: ")
@@ -83,5 +97,9 @@ dosage_factor = {
 
 # Trace the variable to call calculate_dose whenever it changes
 drug_var.trace('w', calculate_dose)
+
+# Start a separate thread to read from the serial port
+serial_thread = threading.Thread(target=read_serial, daemon=True)
+serial_thread.start()
 
 root.mainloop()
