@@ -120,12 +120,21 @@ tare_output.pack()
 dose_output = tk.Label(root, text="Dose: ")
 dose_output.pack()
 
-# Create a dropdown menu for severity level
+# Create RadioButtons for severity levels
 severity_label = tk.Label(root, text="Select Severity:")
 severity_label.pack()
 
-severity_dropdown = tk.OptionMenu(root, severity_var, 'Mild', 'Moderate', 'Severe')
-severity_dropdown.pack()
+severity_frame = tk.Frame(root)
+severity_frame.pack()
+
+mild_button = tk.Radiobutton(severity_frame, text="Mild", variable=severity_var, value="Mild", command=calculate_dose)
+mild_button.pack(side=tk.LEFT)
+
+moderate_button = tk.Radiobutton(severity_frame, text="Moderate", variable=severity_var, value="Moderate", command=calculate_dose)
+moderate_button.pack(side=tk.LEFT)
+
+severe_button = tk.Radiobutton(severity_frame, text="Severe", variable=severity_var, value="Severe", command=calculate_dose)
+severe_button.pack(side=tk.LEFT)
 
 # Define dosage factors for each drug and severity level
 dosage_factor = {
