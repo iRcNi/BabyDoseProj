@@ -7,7 +7,7 @@ import threading
 # Initialize tare weight
 tare_weight = 0.0
 
-# Function to update the image based on the selected drug
+# Function to update the image and reset dose calculation based on selected drug
 def update_image_and_entry(selected_drug):
     if selected_drug == 'Drug 1':
         image_label.config(image=image1_resized)
@@ -19,14 +19,18 @@ def update_image_and_entry(selected_drug):
     drug_var.set(selected_drug)
     calculate_dose()
 
-# Function to calculate the dose based on the weight and selected drug
+# Function to calculate the dose based on the weight, selected drug, and severity
 def calculate_dose(*args):
     selected_drug = drug_var.get()
+    selected_severity = severity_var.get()
     try:
         raw_weight = float(weight_var.get())
         net_weight = raw_weight - tare_weight
         weight_display_var.set(f'{net_weight:.2f} kg')
-        dose = net_weight * dosage_factor[selected_drug]
+        
+        # Calculate the dose based on severity
+        dose_ratio = dosage_factor[selected_drug][selected_severity]
+        dose = net_weight * dose_ratio
         dose_output.config(text=f'Dose: {dose:.2f} mg')
     except ValueError:
         dose_output.config(text='Invalid weight!')
@@ -61,6 +65,10 @@ root.title("Dosage Calculator")
 drug_var = tk.StringVar(root)
 drug_var.set('Drug 1')  # Set the default option
 
+# Create a StringVar to hold the severity level
+severity_var = tk.StringVar(root)
+severity_var.set('Mild')  # Default severity
+
 # Load and resize the images
 def load_and_resize_image(path, size):
     image = Image.open(path)
@@ -70,7 +78,6 @@ def load_and_resize_image(path, size):
 image1_resized = load_and_resize_image('AMOXICILLIN-IMAGE.png', (200, 200))
 image2_resized = load_and_resize_image('IBUPROFEN-IMAGE.png', (200, 200))
 image3_resized = load_and_resize_image('TYLENOL-IMAGE.png', (200, 200))
-
 
 # Create buttons for each drug option
 button_frame = tk.Frame(root)
@@ -113,15 +120,23 @@ tare_output.pack()
 dose_output = tk.Label(root, text="Dose: ")
 dose_output.pack()
 
-# Define dosage factors for each drug
+# Create a dropdown menu for severity level
+severity_label = tk.Label(root, text="Select Severity:")
+severity_label.pack()
+
+severity_dropdown = tk.OptionMenu(root, severity_var, 'Mild', 'Moderate', 'Severe')
+severity_dropdown.pack()
+
+# Define dosage factors for each drug and severity level
 dosage_factor = {
-    'Drug 1': 10.0,
-    'Drug 2': 20.0,
-    'Drug 3': 30.0
+    'Drug 1': {'Mild': 10.0, 'Moderate': 15.0, 'Severe': 20.0},
+    'Drug 2': {'Mild': 20.0, 'Moderate': 25.0, 'Severe': 30.0},
+    'Drug 3': {'Mild': 30.0, 'Moderate': 35.0, 'Severe': 40.0},
 }
 
 # Trace the variable to call calculate_dose whenever it changes
 drug_var.trace('w', calculate_dose)
+severity_var.trace('w', calculate_dose)
 
 # Start a separate thread to read from the serial port
 serial_thread = threading.Thread(target=read_serial, daemon=True)
