@@ -8,14 +8,15 @@ import threading
 tare_weight = 0.0
 
 # Function to calculate the dose based on the weight and selected severity
-def calculate_dose(severity):
+def calculate_dose(*args):
+    selected_severity = severity_var.get()
     try:
         raw_weight = float(weight_var.get())
         net_weight = raw_weight - tare_weight
         weight_display_var.set(f'{net_weight:.2f} kg')
         
         # Calculate the dose based on severity
-        dose_ratio = dosage_factor[severity]
+        dose_ratio = dosage_factor[selected_severity]
         dose = net_weight * dose_ratio
         dose_output.config(text=f'Dose: {dose:.2f} mg')
     except ValueError:
@@ -27,6 +28,7 @@ def tare_weight_function():
     try:
         tare_weight = float(weight_var.get())
         tare_output.config(text=f'Tare Weight: {tare_weight:.2f} kg')
+        calculate_dose()  # Update dose when taring the weight
     except ValueError:
         tare_output.config(text='Tare Weight: Invalid weight!')
 
@@ -36,7 +38,7 @@ def read_serial():
         try:
             weight = ser.readline().decode('utf-8').strip()
             weight_var.set(weight)
-            calculate_dose(severity_var.get())
+            calculate_dose()
         except:
             continue
 
@@ -49,6 +51,10 @@ root.title("Dosage Calculator")
 
 # Create a StringVar to hold the weight value
 weight_var = tk.StringVar(root)
+
+# Create a StringVar to hold the severity level
+severity_var = tk.StringVar(root)
+severity_var.set('Mild')  # Default severity
 
 # Create a StringVar to display the net weight (tared weight)
 weight_display_var = tk.StringVar(root)
@@ -102,16 +108,16 @@ severity_label.pack()
 severity_frame = tk.Frame(info_frame)
 severity_frame.pack()
 
-mild_button = tk.Button(severity_frame, text="Mild", command=lambda: calculate_dose('Mild'), font=("Arial", 14), width=10)
+mild_button = tk.Button(severity_frame, text="Mild", command=lambda: severity_var.set('Mild'), font=("Arial", 14), width=10)
 mild_button.pack(side=tk.LEFT, padx=5)
 
-moderate_button = tk.Button(severity_frame, text="Moderate", command=lambda: calculate_dose('Moderate'), font=("Arial", 14), width=10)
+moderate_button = tk.Button(severity_frame, text="Moderate", command=lambda: severity_var.set('Moderate'), font=("Arial", 14), width=10)
 moderate_button.pack(side=tk.LEFT, padx=5)
 
-severe_button = tk.Button(severity_frame, text="Severe", command=lambda: calculate_dose('Severe'), font=("Arial", 14), width=10)
+severe_button = tk.Button(severity_frame, text="Severe", command=lambda: severity_var.set('Severe'), font=("Arial", 14), width=10)
 severe_button.pack(side=tk.LEFT, padx=5)
 
-critical_button = tk.Button(severity_frame, text="Critical", command=lambda: calculate_dose('Critical'), font=("Arial", 14), width=10)
+critical_button = tk.Button(severity_frame, text="Critical", command=lambda: severity_var.set('Critical'), font=("Arial", 14), width=10)
 critical_button.pack(side=tk.LEFT, padx=5)
 
 # Define dosage factors for each severity level
@@ -121,6 +127,10 @@ dosage_factor = {
     'Severe': 20.0,
     'Critical': 25.0,
 }
+
+# Trace the variable to call calculate_dose whenever the weight or severity changes
+weight_var.trace('w', calculate_dose)
+severity_var.trace('w', calculate_dose)
 
 # Start a separate thread to read from the serial port
 serial_thread = threading.Thread(target=read_serial, daemon=True)
