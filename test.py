@@ -86,8 +86,8 @@ weight_label = tk.Label(info_frame, text="Weight: ", font=("Arial", 14))
 weight_label.pack()
 
 # Create an entry to input the weight
-weight_entry = tk.Entry(info_frame, textvariable=weight_var, font=("Arial", 14))
-weight_entry.pack()
+# weight_entry = tk.Entry(info_frame, textvariable=weight_var, font=("Arial", 14))
+# weight_entry.pack()
 
 # Create a Label to display the net weight
 weight_display = tk.Label(info_frame, textvariable=weight_display_var, font=("Arial", 14))
