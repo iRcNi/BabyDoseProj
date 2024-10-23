@@ -12,6 +12,8 @@ def calculate_dose(*args):
     selected_severity = severity_var.get()
     try:
         raw_weight = float(weight_var.get())
+        if raw_weight < 20:  # Set minimum weight threshold to 20
+            raw_weight = 0  # Display as zero if less than 20
         net_weight = raw_weight - tare_weight
         weight_display_var.set(f'{net_weight:.2f} kg')
         
@@ -21,6 +23,7 @@ def calculate_dose(*args):
         dose_output.config(text=f'Dose: {dose:.2f} mg')
     except ValueError:
         dose_output.config(text='Invalid weight!')
+
 
 # Function to tare the weight
 def tare_weight_function():
@@ -43,7 +46,7 @@ def read_serial():
             continue
 
 # Setup serial port
-ser = serial.Serial(port='/dev/ttyUSB0', baudrate=9600)
+ser = serial.Serial(port='/dev/ttyUSB0', baudrate=57600)
 
 # Create the Tkinter application
 root = tk.Tk()
@@ -123,10 +126,10 @@ critical_button.grid(row=1, column=1, padx=5, pady=5)  # Second row, second colu
 
 # Define dosage factors for each severity level
 dosage_factor = {
-    'Mild': 10.0,
-    'Moderate': 15.0,
-    'Severe': 20.0,
-    'Critical': 25.0,
+    'Mild': 0.05,
+    'Moderate': 0.1,
+    'Severe': 0.15,
+    'Critical': 0.2,
 }
 
 # Trace the variable to call calculate_dose whenever the weight or severity changes
