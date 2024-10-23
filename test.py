@@ -69,9 +69,10 @@ def load_and_resize_image(path, size):
     image = image.resize(size, Image.ANTIALIAS)
     return ImageTk.PhotoImage(image)
 
-drug_image_resized = load_and_resize_image('AMOXICILLIN-IMAGE.png', (200, 200))
+drug_image_resized = load_and_resize_image('AMOXICILLIN-IMAGE.png', (300, 300))  # Adjusted image size
 image_label = tk.Label(image_frame, image=drug_image_resized)
 image_label.pack()
+
 
 # Create a frame for all the text and buttons on the right
 info_frame = tk.Frame(root)
@@ -109,16 +110,16 @@ severity_frame = tk.Frame(info_frame)
 severity_frame.pack()
 
 mild_button = tk.Button(severity_frame, text="Mild", command=lambda: severity_var.set('Mild'), font=("Arial", 14), width=10)
-mild_button.pack(side=tk.LEFT, padx=5)
+mild_button.grid(row=0, column=0, padx=5, pady=5)  # First row, first column
 
 moderate_button = tk.Button(severity_frame, text="Moderate", command=lambda: severity_var.set('Moderate'), font=("Arial", 14), width=10)
-moderate_button.pack(side=tk.LEFT, padx=5)
+moderate_button.grid(row=0, column=1, padx=5, pady=5)  # First row, second column
 
 severe_button = tk.Button(severity_frame, text="Severe", command=lambda: severity_var.set('Severe'), font=("Arial", 14), width=10)
-severe_button.pack(side=tk.LEFT, padx=5)
+severe_button.grid(row=1, column=0, padx=5, pady=5)  # Second row, first column
 
 critical_button = tk.Button(severity_frame, text="Critical", command=lambda: severity_var.set('Critical'), font=("Arial", 14), width=10)
-critical_button.pack(side=tk.LEFT, padx=5)
+critical_button.grid(row=1, column=1, padx=5, pady=5)  # Second row, second column
 
 # Define dosage factors for each severity level
 dosage_factor = {
