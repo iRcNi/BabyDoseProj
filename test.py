@@ -3,6 +3,8 @@ from tkinter import PhotoImage
 from PIL import Image, ImageTk
 import serial
 import threading
+import time  # Add this if it's not already imported
+
 
 # Initialize tare weight
 tare_weight = 0.0
@@ -36,14 +38,18 @@ def tare_weight_function():
         tare_output.config(text='Tare Weight: Invalid weight!')
 
 # Function to read weight from serial port
+
+# Function to read weight from serial port with 2-second delay between samples
 def read_serial():
     while True:
         try:
             weight = ser.readline().decode('utf-8').strip()
             weight_var.set(weight)
             calculate_dose()
+            time.sleep(2)  # Wait for 2 seconds before reading the next value
         except:
             continue
+
 
 # Setup serial port
 ser = serial.Serial(port='/dev/ttyUSB0', baudrate=57600)
